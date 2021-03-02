@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,12 +15,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask ground;
     [SerializeField] private float rayLength = .5f;
     [SerializeField] private Transform groundRayPosition;
+    [SerializeField] private FloatingJoystick joystick;
+    [SerializeField] private ButtonHandle forwardButton;
+    [SerializeField] private Button backwardButton;
+
 
     private float turnInput;
     private float forwardInput;
     private float turnModifier;
     private Vector3 direction;
-    private bool groundCheck;
+    [SerializeField] private bool groundCheck;
     private float dragOnGround = 3f;
 
 
@@ -41,10 +46,27 @@ public class PlayerController : MonoBehaviour
         {
             forwardInput = Input.GetAxis("Vertical") * reverseAcc * 1000f;
         }
+        else
+        {
+            forwardInput = 0;
+        }
+
+        turnInput = Input.GetAxis("Horizontal");
+
+        if (Mathf.Abs(joystick.Horizontal) >= 0.1)
+        {
+            turnInput = joystick.Horizontal;
+        }
+
+        if (forwardButton.Vertical > 0)
+        {
+            forwardInput = forwardButton.Vertical * forwardAcc * 1000f;
+        }
+
 
         if (Mathf.Abs(sphereRb.velocity.magnitude) > 5)
         {
-            if (forwardInput > 0)
+            if (sphereRb.velocity.magnitude > 0)
             {
                 turnModifier = 1;
             }
@@ -58,7 +80,7 @@ public class PlayerController : MonoBehaviour
             turnModifier = Input.GetAxis("Vertical");
         }
 
-        turnInput = Input.GetAxis("Horizontal");
+
 
         if (groundCheck)
         {
@@ -88,12 +110,13 @@ public class PlayerController : MonoBehaviour
             {
                 sphereRb.AddForce(transform.forward * forwardInput);
             }
-            else
-            {
-                sphereRb.drag = 0.1f;
+        }
+        else
+        {
+            sphereRb.drag = 0.1f;
 
-                sphereRb.AddForce(Vector3.up * -gravityForce * 100f);
-            }
+            sphereRb.AddForce(Vector3.up * -gravityForce * 100f);
         }
     }
 }
+
